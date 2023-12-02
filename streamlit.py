@@ -7,9 +7,9 @@ import seaborn as sns
 # 데이터 로딩
 @st.cache_data
 def load_data():
-    return pd.read_csv('sample_analys.csv')
-df_analys = load_data()
-df_analys = df_analys.drop(columns='Unnamed: 0')
+    return pd.read_csv('sample_analysis.csv')
+df_analysis = load_data()
+df_analysis = df_analysis.drop(columns='Unnamed: 0')
 
 # 사이드바 설정
 st.sidebar.title('메뉴')
@@ -24,14 +24,14 @@ if page == '메인 페이지':
 
     # 필터링 옵션
     st.write('필터링 옵션 (디폴트는 전체선택)')
-    selected_place = st.multiselect('장소 선택', options=df_analys['place'].unique())
-    selected_daynight = st.multiselect('주간/야간 선택', options=df_analys['daynight'].unique())
-    selected_weather = st.multiselect('날씨 선택', options=df_analys['weather'].unique())
-    selected_bike_lane = st.multiselect('자전거 도로 유형 선택', options=df_analys['bike_lane'].unique())
+    selected_place = st.multiselect('장소 선택', options=df_analysis['place'].unique())
+    selected_daynight = st.multiselect('주간/야간 선택', options=df_analysis['daynight'].unique())
+    selected_weather = st.multiselect('날씨 선택', options=df_analysis['weather'].unique())
+    selected_bike_lane = st.multiselect('자전거 도로 유형 선택', options=df_analysis['bike_lane'].unique())
     selected_date_range = st.date_input('날짜 범위 선택', [])
 
     # 필터링된 데이터
-    filtered_df = df_analys.copy()
+    filtered_df = df_analysis.copy()
     if selected_place:
         filtered_df = filtered_df[filtered_df['place'].isin(selected_place)]
     if selected_daynight:
@@ -48,19 +48,19 @@ if page == '메인 페이지':
     # 기준 별 자전거 이용량
     st.header('기준별 자전거 이용량')
     # 필터링된 옵션을 카피 (이래야 필터링 바꿔도 초기화)
-    df_analys = filtered_df.copy()
+    df_analysis = filtered_df.copy()
     # date_captured 열을 datetime 타입으로 변환
-    df_analys['date_captured'] = pd.to_datetime(df_analys['date_captured'])
-    df_analys['hour'] = df_analys['date_captured'].dt.hour
-    df_analys['weekday'] = df_analys['date_captured'].dt.weekday
-    df_analys['month'] = df_analys['date_captured'].dt.month
+    df_analysis['date_captured'] = pd.to_datetime(df_analysis['date_captured'])
+    df_analysis['hour'] = df_analysis['date_captured'].dt.hour
+    df_analysis['weekday'] = df_analysis['date_captured'].dt.weekday
+    df_analysis['month'] = df_analysis['date_captured'].dt.month
 
     # 사용자 입력 받기
     option = st.selectbox('분석할 기준을 선택하세요', ['시간별', '요일별', '월별', 'day/night별', '날씨별', '장소별', '자전거 도로 유형별'])
 
     # 분석 및 시각화
     if option == '시간별':
-        usage = df_analys.groupby('hour').size()
+        usage = df_analysis.groupby('hour').size()
         fig, ax = plt.subplots()
         sns.barplot(x=usage.index, y=usage.values, ax=ax)
         ax.set_xlabel('Hour of the Day')
@@ -68,7 +68,7 @@ if page == '메인 페이지':
         st.pyplot(fig)
 
     elif option == '요일별':
-        usage = df_analys.groupby('weekday').size()
+        usage = df_analysis.groupby('weekday').size()
         fig, ax = plt.subplots()
         sns.barplot(x=usage.index, y=usage.values, ax=ax)
         ax.set_xlabel('Day of the Week')
@@ -77,7 +77,7 @@ if page == '메인 페이지':
         st.pyplot(fig)
 
     elif option == '월별':
-        usage = df_analys.groupby('month').size()
+        usage = df_analysis.groupby('month').size()
         fig, ax = plt.subplots()
         sns.barplot(x=usage.index, y=usage.values, ax=ax)
         ax.set_xlabel('Month')
@@ -85,21 +85,21 @@ if page == '메인 페이지':
         st.pyplot(fig)
 
     elif option == 'day/night별':
-        usage = df_analys.groupby('daynight').size()
+        usage = df_analysis.groupby('daynight').size()
         fig, ax = plt.subplots()
         sns.barplot(x=usage.index, y=usage.values, ax=ax)
         ax.set_xlabel('day or night')
         ax.set_ylabel('Number of Uses')
 
     elif option == '날씨별':
-        usage = df_analys.groupby('weather').size()
+        usage = df_analysis.groupby('weather').size()
         fig, ax = plt.subplots()
         sns.barplot(x=usage.index, y=usage.values, ax=ax)
         ax.set_xlabel('weather')
         ax.set_ylabel('Number of Uses')
 
     elif option == '장소별':
-        usage = df_analys.groupby('place').size()
+        usage = df_analysis.groupby('place').size()
         fig, ax = plt.subplots()
         sns.barplot(x=usage.index, y=usage.values, ax=ax)
         ax.set_xlabel('place')
@@ -107,7 +107,7 @@ if page == '메인 페이지':
         st.pyplot(fig)
 
     elif option == '자전거 도로 유형별':
-        usage = df_analys.groupby('bike_lane').size()
+        usage = df_analysis.groupby('bike_lane').size()
         fig, ax = plt.subplots()
         sns.barplot(x=usage.index, y=usage.values, ax=ax)
         ax.set_xlabel('bike_lane')
@@ -128,14 +128,14 @@ elif page == '비교 분석':
     # 필터링 옵션 세트 1
     with col1:
         st.write('필터링 옵션 세트 1 (디폴트는 전체선택)')
-        selected_place_1 = st.multiselect('장소 선택', options=df_analys['place'].unique(), key='place1')
-        selected_daynight_1 = st.multiselect('주간/야간 선택', options=df_analys['daynight'].unique(), key='daynight1')
-        selected_weather_1 = st.multiselect('날씨 선택', options=df_analys['weather'].unique(), key='weather1')
-        selected_bike_lane_1 = st.multiselect('자전거 도로 유형 선택', options=df_analys['bike_lane'].unique(), key='bike_lane1')
+        selected_place_1 = st.multiselect('장소 선택', options=df_analysis['place'].unique(), key='place1')
+        selected_daynight_1 = st.multiselect('주간/야간 선택', options=df_analysis['daynight'].unique(), key='daynight1')
+        selected_weather_1 = st.multiselect('날씨 선택', options=df_analysis['weather'].unique(), key='weather1')
+        selected_bike_lane_1 = st.multiselect('자전거 도로 유형 선택', options=df_analysis['bike_lane'].unique(), key='bike_lane1')
         selected_date_range_1 = st.date_input('날짜 범위 선택', [], key='date_range1')
 
         # 필터링된 데이터
-        filtered_df_1 = df_analys.copy()
+        filtered_df_1 = df_analysis.copy()
         if selected_place_1:
             filtered_df_1 = filtered_df_1[filtered_df_1['place'].isin(selected_place_1)]
         if selected_daynight_1:
@@ -151,14 +151,14 @@ elif page == '비교 분석':
     # 필터링 옵션 세트 2
     with col2:
         st.write('필터링 옵션 세트 2 (디폴트는 전체선택)')
-        selected_place_2 = st.multiselect('장소 선택', options=df_analys['place'].unique(), key='place2')
-        selected_daynight_2 = st.multiselect('주간/야간 선택', options=df_analys['daynight'].unique(), key='daynight2')
-        selected_weather_2 = st.multiselect('날씨 선택', options=df_analys['weather'].unique(), key='weather2')
-        selected_bike_lane_2 = st.multiselect('자전거 도로 유형 선택', options=df_analys['bike_lane'].unique(), key='bike_lane2')
+        selected_place_2 = st.multiselect('장소 선택', options=df_analysis['place'].unique(), key='place2')
+        selected_daynight_2 = st.multiselect('주간/야간 선택', options=df_analysis['daynight'].unique(), key='daynight2')
+        selected_weather_2 = st.multiselect('날씨 선택', options=df_analysis['weather'].unique(), key='weather2')
+        selected_bike_lane_2 = st.multiselect('자전거 도로 유형 선택', options=df_analysis['bike_lane'].unique(), key='bike_lane2')
         selected_date_range_2 = st.date_input('날짜 범위 선택', [], key='date_range2')
 
         # 필터링된 데이터
-        filtered_df_2 = df_analys.copy()
+        filtered_df_2 = df_analysis.copy()
         if selected_place_2:
             filtered_df_2 = filtered_df_2[filtered_df_2['place'].isin(selected_place_2)]
         if selected_daynight_2:
@@ -175,14 +175,14 @@ elif page == '비교 분석':
     # 기준 별로 데이터 분석
     st.header('두 집단 기준별로 비교')
     # 필터링된 옵션을 카피 (이래야 필터링 바꿔도 초기화)
-    df_analys_1 = filtered_df_1.copy()
-    df_analys_2 = filtered_df_2.copy()
+    df_analysis_1 = filtered_df_1.copy()
+    df_analysis_2 = filtered_df_2.copy()
     # date_captured 열을 datetime 타입으로 변환
-    for df_analys in [df_analys_1, df_analys_2]:
-        df_analys['date_captured'] = pd.to_datetime(df_analys['date_captured'])
-        df_analys['hour'] = df_analys['date_captured'].dt.hour
-        df_analys['weekday'] = df_analys['date_captured'].dt.weekday
-        df_analys['month'] = df_analys['date_captured'].dt.month
+    for df_analysis in [df_analysis_1, df_analysis_2]:
+        df_analysis['date_captured'] = pd.to_datetime(df_analysis['date_captured'])
+        df_analysis['hour'] = df_analysis['date_captured'].dt.hour
+        df_analysis['weekday'] = df_analysis['date_captured'].dt.weekday
+        df_analysis['month'] = df_analysis['date_captured'].dt.month
     # 사용자 입력 받기
     option = st.selectbox('분석할 기준을 선택하세요', ['시간별', '요일별', '월별', 'day/night별', '날씨별', '장소별', '자전거 도로 유형별'])
 
@@ -190,12 +190,12 @@ elif page == '비교 분석':
     if option == '시간별':
         fig, axs = plt.subplots(2,1)
         # 필터링1
-        usage_1 = df_analys_1.groupby('hour').size()
+        usage_1 = df_analysis_1.groupby('hour').size()
         sns.barplot(x=usage_1.index, y=usage_1.values, ax=axs[0])
         axs[0].set_xlabel('Hour of the Day')
         axs[0].set_ylabel('Number of Uses')
         # 필터링2
-        usage_2 = df_analys_2.groupby('hour').size()
+        usage_2 = df_analysis_2.groupby('hour').size()
         sns.barplot(x=usage_2.index, y=usage_2.values, ax=axs[1])
         axs[1].set_xlabel('Hour of the Day')
         axs[1].set_ylabel('Number of Uses')
@@ -206,13 +206,13 @@ elif page == '비교 분석':
     elif option == '요일별':
         fig, axs = plt.subplots(2,1)
         # 필터링1
-        usage_1 = df_analys_1.groupby('weekday').size()
+        usage_1 = df_analysis_1.groupby('weekday').size()
         sns.barplot(x=usage_1.index, y=usage_1.values, ax=axs[1])
         axs[0].set_xlabel('Day of the Week')
         axs[0].set_ylabel('Number of Uses')
         axs[0].set_xticklabels(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
         # 필터링2
-        usage_2 = df_analys_2.groupby('weekday').size()
+        usage_2 = df_analysis_2.groupby('weekday').size()
         sns.barplot(x=usage_2.index, y=usage_2.values, ax=axs[0])
         axs[1].set_xlabel('Day of the Week')
         axs[1].set_ylabel('Number of Uses')
@@ -224,12 +224,12 @@ elif page == '비교 분석':
     elif option == '월별':
         fig, axs = plt.subplots(2,1)
         # 필터링1
-        usage_1 = df_analys_1.groupby('month').size()
+        usage_1 = df_analysis_1.groupby('month').size()
         sns.barplot(x=usage_1.index, y=usage_1.values, ax=axs[0])
         axs[0].set_xlabel('Month')
         axs[0].set_ylabel('Number of Uses')
         # 필터링2
-        usage_2 = df_analys_2.groupby('month').size()
+        usage_2 = df_analysis_2.groupby('month').size()
         sns.barplot(x=usage_2.index, y=usage_2.values, ax=axs[1])
         axs[1].set_xlabel('Month')
         axs[1].set_ylabel('Number of Uses')
@@ -240,12 +240,12 @@ elif page == '비교 분석':
     elif option == 'day/night별':
         fig, axs = plt.subplots(2,1)
         # 필터링1
-        usage_1 = df_analys_1.groupby('daynight').size()
+        usage_1 = df_analysis_1.groupby('daynight').size()
         sns.barplot(x=usage_1.index, y=usage_1.values, ax=axs[0])
         axs[0].set_xlabel('day or night')
         axs[0].set_ylabel('Number of Uses')
         # 필터링2
-        usage_2 = df_analys_2.groupby('daynight').size()
+        usage_2 = df_analysis_2.groupby('daynight').size()
         sns.barplot(x=usage_2.index, y=usage_2.values, ax=axs[1])
         axs[1].set_xlabel('day or night')
         axs[1].set_ylabel('Number of Uses')
@@ -256,12 +256,12 @@ elif page == '비교 분석':
     elif option == '날씨별':
         fig, axs = plt.subplots(2,1)
         # 필터링1
-        usage_1 = df_analys_1.groupby('weather').size()
+        usage_1 = df_analysis_1.groupby('weather').size()
         sns.barplot(x=usage_1.index, y=usage_1.values, ax=axs[0])
         axs[0].set_xlabel('weather')
         axs[0].set_ylabel('Number of Uses')
         # 필터링2
-        usage_2 = df_analys_2.groupby('weather').size()
+        usage_2 = df_analysis_2.groupby('weather').size()
         sns.barplot(x=usage_2.index, y=usage_2.values, ax=axs[1])
         axs[1].set_xlabel('weather')
         axs[1].set_ylabel('Number of Uses')
@@ -272,12 +272,12 @@ elif page == '비교 분석':
     elif option == '장소별':
         fig, axs = plt.subplots(2,1)
         # 필터링1
-        usage_1 = df_analys_1.groupby('place').size()
+        usage_1 = df_analysis_1.groupby('place').size()
         sns.barplot(x=usage_1.index, y=usage_1.values, ax=axs[0])
         axs[0].set_xlabel('place')
         axs[0].set_ylabel('Number of Uses')
         # 필터링2
-        usage_2 = df_analys_2.groupby('place').size()
+        usage_2 = df_analysis_2.groupby('place').size()
         sns.barplot(x=usage_2.index, y=usage_2.values, ax=axs[1])
         axs[1].set_xlabel('place')
         axs[1].set_ylabel('Number of Uses')
@@ -288,12 +288,12 @@ elif page == '비교 분석':
     elif option == '자전거 도로 유형별':
         fig, axs = plt.subplots(2,1)
         # 필터링1
-        usage_1 = df_analys_1.groupby('bike_lane').size()
+        usage_1 = df_analysis_1.groupby('bike_lane').size()
         sns.barplot(x=usage_1.index, y=usage_1.values, ax=axs[0])
         axs[0].set_xlabel('bike_lane')
         axs[0].set_ylabel('Number of Uses')
         # 필터링2
-        usage_2 = df_analys_2.groupby('bike_lane').size()
+        usage_2 = df_analysis_2.groupby('bike_lane').size()
         sns.barplot(x=usage_2.index, y=usage_2.values, ax=axs[1])
         axs[1].set_xlabel('bike_lane')
         axs[1].set_ylabel('Number of Uses')
@@ -308,7 +308,7 @@ elif page == '상관 분석':
     st.write('')
 
     # 수치형 데이터를 포함하는 열만 선택 가능하도록 multiselect 위젯 추가
-    numeric_columns = df_analys.select_dtypes(include=[np.number]).columns
+    numeric_columns = df_analysis.select_dtypes(include=[np.number]).columns
 
     # '전체 선택'을 포함하는 선택 옵션 만들기
     options = ['전체 선택'] + list(numeric_columns)
@@ -325,7 +325,7 @@ elif page == '상관 분석':
     # 선택된 열이 있을 경우 상관관계 계산
     if selected_columns:
         # 선택된 열에 대한 상관관계 계산
-        correlation = df_analys[selected_columns].corr()
+        correlation = df_analysis[selected_columns].corr()
         # 상관관계 표시
         st.write('상관관계:', correlation)
         # 상관관계를 히트맵으로 시각화
