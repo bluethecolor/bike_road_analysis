@@ -3,6 +3,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import streamlit.components.v1 as components
+import folium
+from folium.plugins import HeatMap
 
 # 데이터 로딩
 @st.cache_data
@@ -351,10 +354,28 @@ elif page == '상관 분석':
 # GPS좌표
 elif page == 'GPS좌표':
 
-    # HTML 파일 읽기
-    with open('gps_coordinates.html', 'r') as file:
-        html_content = file.read()
+    # 필터링 옵션
+    st.write('지역 선택 (디폴트는 전체선택)')
+    selected_place = st.multiselect('지역 선택', options=df_analysis['place'].unique())
 
-    # Streamlit 앱에서 HTML 표시
-    st.markdown(html_content, unsafe_allow_html=True)
+    # 필터링된 데이터
+    filtered_gps = df_analysis.copy()
+    if selected_place:
+        filtered_gps = filtered_gps[filtered_gps['place'].isin(selected_place)]
+
+    # 중앙 위치 계산
+    center_lat = filtered_gps['Latitude'].mean()
+    center_lon = filtered_gps['Longitude'].mean()
+
+    # 지도 생성
+    map = folium.Map(location=[center_lat, center_lon], zoom_start=10)
+
+    # 히트맵 추가
+    HeatMap(data=filtered_gps[['Latitude', 'Longitude']], radius=10).add_to(map)
+
+    # 지도를 HTML 문자열로 변환
+    map_html = map._repr_html_()
+
+    # Streamlit 앱에 지도 표시
+    components.html(map_html, width=700, height=500)
 
